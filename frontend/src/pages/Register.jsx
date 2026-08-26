@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { register } from "../services/authService";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [form, setForm] = useState({
@@ -117,6 +118,10 @@ function Register() {
         </div>
 
         <br />
+
+        <p>
+          Sudah punya akun? <Link to="/login">Login</Link>
+        </p>
 
         {/* BUTTON */}
         <button type="submit" disabled={loading}>

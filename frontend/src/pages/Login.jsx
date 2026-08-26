@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { login } from "../services/authService";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({
@@ -64,6 +65,10 @@ function Login() {
         />
 
         <br />
+
+        <p>
+          Belum punya akun? <Link to="/register">Register</Link>
+        </p>
 
         <button type="submit">Login</button>
       </form>
