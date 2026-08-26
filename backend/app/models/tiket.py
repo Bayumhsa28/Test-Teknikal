@@ -1,15 +1,17 @@
 from datetime import datetime
 
-from sqlalchemy import String, Text, DateTime
+from sqlalchemy import String, Text, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 
 
 class Tiket(Base):
+
     __tablename__ = "tiket"
 
     id: Mapped[int] = mapped_column(
+        Integer,
         primary_key=True,
         autoincrement=True
     )
@@ -38,13 +40,13 @@ class Tiket(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
-        nullable=False
+        nullable=False,
+        default=datetime.utcnow
     )
 
     update_at: Mapped[datetime] = mapped_column(
         DateTime,
+        nullable=False,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        nullable=False
+        onupdate=datetime.utcnow
     )

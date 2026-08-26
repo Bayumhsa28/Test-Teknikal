@@ -37,6 +37,9 @@ app.add_middleware(
 # Authentication routes
 app.include_router(auth_router)
 
+# Tiket
+app.include_router(tiket_router)
+
 
 @app.get("/")
 def root():
