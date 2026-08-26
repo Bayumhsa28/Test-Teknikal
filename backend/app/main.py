@@ -1,10 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.database import Base, engine
+from app.routes.tiket import router as tiket_router
+from app.models.tiket import Tiket
+
+
 app = FastAPI()
 
 
-# CORS
+Base.metadata.create_all(bind=engine)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -16,15 +23,11 @@ app.add_middleware(
 )
 
 
-@app.get("/api/users")
-def get_users():
-    return [
-        {
-            "id": 1,
-            "name": "Bayu"
-        },
-        {
-            "id": 2,
-            "name": "Andi"
-        }
-    ]
+app.include_router(tiket_router)
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "API is running"
+    }
