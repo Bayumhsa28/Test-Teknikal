@@ -9,7 +9,9 @@ function EditAdmin() {
 
   const [tiket, setTiket] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   // =====================================
   // GET COOKIE
@@ -67,6 +69,8 @@ function EditAdmin() {
       console.error(error);
 
       setMessage(error.response?.data?.detail || "Gagal mengambil data tiket");
+
+      setMessageType("error");
     } finally {
       setLoading(false);
     }
@@ -87,7 +91,42 @@ function EditAdmin() {
   // =====================================
 
   const handleEdit = (id) => {
-    navigate(`/edit-tiket/${id}`);
+    navigate(`/edit-tiket-admin/${id}`);
+  };
+
+  // =====================================
+  // DELETE
+  // =====================================
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      `Apakah kamu yakin ingin menghapus tiket #${id}?`,
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      setDeletingId(id);
+      setMessage("");
+
+      await axios.delete(`http://localhost:8000/api/tiket/${id}`);
+
+      // Hapus tiket dari tampilan tanpa reload
+      setTiket((prevTiket) => prevTiket.filter((item) => item.id !== id));
+
+      setMessage("Tiket berhasil dihapus!");
+      setMessageType("success");
+    } catch (error) {
+      console.error(error);
+
+      setMessage(error.response?.data?.detail || "Gagal menghapus tiket");
+
+      setMessageType("error");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   // =====================================
@@ -100,7 +139,9 @@ function EditAdmin() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:py-10">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* ================================= */}
           {/* HEADER */}
+          {/* ================================= */}
 
           <div className="p-6 border-b border-gray-100">
             <p className="text-sm font-semibold text-indigo-600">TICKET</p>
@@ -114,15 +155,33 @@ function EditAdmin() {
             </p>
           </div>
 
+          {/* ================================= */}
           {/* MESSAGE */}
+          {/* ================================= */}
 
           {message && (
-            <div className="mx-6 mt-5 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
+            <div
+              className={`
+                mx-6
+                mt-5
+                p-4
+                rounded-xl
+                text-sm
+                border
+                ${
+                  messageType === "success"
+                    ? "bg-green-50 border-green-200 text-green-700"
+                    : "bg-red-50 border-red-200 text-red-600"
+                }
+              `}
+            >
               {message}
             </div>
           )}
 
+          {/* ================================= */}
           {/* LOADING */}
+          {/* ================================= */}
 
           {loading ? (
             <div className="p-10 text-center text-gray-500">
@@ -133,8 +192,14 @@ function EditAdmin() {
               Belum ada tiket.
             </div>
           ) : (
+            /* ================================= */
+            /* TABLE */
+            /* ================================= */
+
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
+                {/* TABLE HEADER */}
+
                 <thead className="bg-gray-50 border-b">
                   <tr>
                     <th className="px-6 py-4 font-semibold text-gray-700">
@@ -170,6 +235,8 @@ function EditAdmin() {
                     </th>
                   </tr>
                 </thead>
+
+                {/* TABLE BODY */}
 
                 <tbody className="divide-y divide-gray-100">
                   {tiket.map((item) => (
@@ -254,24 +321,52 @@ function EditAdmin() {
 
                       {/* ACTION */}
 
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(item.id)}
-                          className="
-                            px-4
-                            py-2
-                            bg-indigo-600
-                            hover:bg-indigo-700
-                            text-white
-                            text-sm
-                            font-semibold
-                            rounded-lg
-                            transition
-                          "
-                        >
-                          Edit
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          {/* EDIT */}
+
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(item.id)}
+                            disabled={deletingId === item.id}
+                            className="
+                              px-4
+                              py-2
+                              bg-indigo-600
+                              hover:bg-indigo-700
+                              disabled:bg-indigo-300
+                              text-white
+                              text-sm
+                              font-semibold
+                              rounded-lg
+                              transition
+                            "
+                          >
+                            Edit
+                          </button>
+
+                          {/* DELETE */}
+
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deletingId === item.id}
+                            className="
+                              px-4
+                              py-2
+                              bg-red-600
+                              hover:bg-red-700
+                              disabled:bg-red-300
+                              text-white
+                              text-sm
+                              font-semibold
+                              rounded-lg
+                              transition
+                            "
+                          >
+                            {deletingId === item.id ? "Menghapus..." : "Hapus"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

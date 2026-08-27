@@ -128,3 +128,34 @@ def update_tiket(
     db.refresh(tiket)
 
     return tiket
+
+
+# ==========================================
+# DELETE TIKET
+# ==========================================
+
+@router.delete(
+    "/{tiket_id}",
+    status_code=204
+)
+def delete_tiket(
+    tiket_id: int,
+    db: Session = Depends(get_db)
+):
+
+    tiket = (
+        db.query(Tiket)
+        .filter(Tiket.id == tiket_id)
+        .first()
+    )
+
+    if not tiket:
+        raise HTTPException(
+            status_code=404,
+            detail="Tiket tidak ditemukan"
+        )
+
+    db.delete(tiket)
+    db.commit()
+
+    return

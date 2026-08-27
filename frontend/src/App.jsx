@@ -6,6 +6,7 @@ import InputTiket from "./pages/inputTiket";
 import Edit from "./pages/edit";
 import EditTiket from "./pages/EditTiket";
 import EditAdmin from "./pages/EditAdmin";
+import EditTiketAdmin from "./pages/InputTiketAdmin";
 
 function App() {
   return (
@@ -29,6 +30,9 @@ function App() {
 
         {/* ADMIN */}
         <Route path="/edit-admin" element={<EditAdmin />} />
+
+        {/* EDIT TIKET USER */}
+        <Route path="/edit-tiket-admin/:id" element={<EditTiketAdmin />} />
       </Routes>
     </BrowserRouter>
   );
