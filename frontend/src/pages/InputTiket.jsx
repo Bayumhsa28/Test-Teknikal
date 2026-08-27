@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
 
 function InputTiket() {
+  const navigate = useNavigate();
+
+  const [authorized, setAuthorized] = useState(false);
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -12,6 +17,57 @@ function InputTiket() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // =====================================
+  // GET COOKIE
+  // =====================================
+
+  const getCookie = (name) => {
+    const cookies = document.cookie.split("; ");
+
+    const cookie = cookies.find((row) => row.startsWith(`${name}=`));
+
+    if (!cookie) {
+      return null;
+    }
+
+    return decodeURIComponent(cookie.substring(name.length + 1));
+  };
+
+  // =====================================
+  // CEK LOGIN & ROLE
+  // =====================================
+
+  useEffect(() => {
+    const nama = getCookie("nama");
+    const email = getCookie("email");
+    const role = getCookie("role");
+
+    // =====================================
+    // BELUM LOGIN
+    // =====================================
+
+    if (!nama || !email || !role) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    // =====================================
+    // HANYA ROLE 2
+    // =====================================
+
+    if (Number(role) !== 2) {
+      // Role selain 2 tidak boleh masuk
+      navigate("/", { replace: true });
+      return;
+    }
+
+    // =====================================
+    // ROLE 2 BERHAK MASUK
+    // =====================================
+
+    setAuthorized(true);
+  }, [navigate]);
 
   // =====================================
   // HANDLE INPUT
@@ -63,23 +119,34 @@ function InputTiket() {
     }
   };
 
+  // =====================================
+  // JANGAN TAMPILKAN PAGE
+  // SEBELUM ROLE SELESAI DICEK
+  // =====================================
+
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p className="text-gray-500">Memeriksa akses...</p>
+      </div>
+    );
+  }
+
+  // =====================================
+  // PAGE
+  // =====================================
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* ================================= */}
       {/* NAVBAR */}
-      {/* ================================= */}
 
       <Navbar />
 
-      {/* ================================= */}
       {/* CONTENT */}
-      {/* ================================= */}
 
       <main className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
         <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8">
-          {/* ================================= */}
           {/* HEADER FORM */}
-          {/* ================================= */}
 
           <div className="mb-8">
             <p className="text-sm font-semibold text-indigo-600">TICKET</p>
@@ -93,14 +160,10 @@ function InputTiket() {
             </p>
           </div>
 
-          {/* ================================= */}
           {/* FORM */}
-          {/* ================================= */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* ================================= */}
             {/* TITLE */}
-            {/* ================================= */}
 
             <div>
               <label
@@ -134,9 +197,7 @@ function InputTiket() {
               />
             </div>
 
-            {/* ================================= */}
             {/* DESCRIPTION */}
-            {/* ================================= */}
 
             <div>
               <label
@@ -171,9 +232,7 @@ function InputTiket() {
               />
             </div>
 
-            {/* ================================= */}
             {/* PRIORITY + STATUS */}
-            {/* ================================= */}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* PRIORITY */}
@@ -253,9 +312,7 @@ function InputTiket() {
               </div>
             </div>
 
-            {/* ================================= */}
             {/* BUTTON */}
-            {/* ================================= */}
 
             <button
               type="submit"
@@ -278,9 +335,7 @@ function InputTiket() {
             </button>
           </form>
 
-          {/* ================================= */}
           {/* MESSAGE */}
-          {/* ================================= */}
 
           {message && (
             <div

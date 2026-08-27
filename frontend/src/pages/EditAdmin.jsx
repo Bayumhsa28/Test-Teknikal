@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar";
 
-function Edit() {
+function EditAdmin() {
   const navigate = useNavigate();
 
   const [tiket, setTiket] = useState([]);
@@ -46,7 +46,7 @@ function Edit() {
     return;
   }
 
-  if (Number(role) !== 2) {
+  if (Number(role) !== 1) {
     // Role selain 2 tidak boleh masuk
     navigate("/", { replace: true });
     return;
@@ -263,4 +263,4 @@ function Edit() {
   );
 }
 
-export default Edit;
+export default EditAdmin;
