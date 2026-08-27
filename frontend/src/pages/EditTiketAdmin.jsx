@@ -16,6 +16,7 @@ function EditTiketAdmin() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -26,22 +27,26 @@ function EditTiketAdmin() {
   useEffect(() => {
     const getTiket = async () => {
       try {
+        setLoading(true);
+        setErrorMessage("");
+
+        // GET digunakan untuk mengambil data sebelumnya
         const response = await axios.get(
           `http://localhost:8000/api/tiket/${id}`,
         );
 
         console.log("Data tiket:", response.data);
 
-        // Masukkan data dari database ke form
+        // Masukkan data database ke dalam form
         setForm({
-          title: response.data.title || "",
-          description: response.data.description || "",
-          priority: response.data.priority || "medium",
-          status: response.data.status || "open",
+          title: response.data.title ?? "",
+          description: response.data.description ?? "",
+          priority: response.data.priority ?? "medium",
+          status: response.data.status ?? "open",
         });
       } catch (error) {
-        console.error("Error:", error);
-        console.error("Response:", error.response?.data);
+        console.error("GET ERROR:", error);
+        console.error("RESPONSE:", error.response?.data);
 
         setErrorMessage(
           error.response?.data?.detail || "Gagal mengambil data tiket",
@@ -65,6 +70,10 @@ function EditTiketAdmin() {
       ...prev,
       [name]: value,
     }));
+
+    // Hilangkan pesan ketika user mulai mengedit
+    setMessage("");
+    setErrorMessage("");
   };
 
   // =====================================
@@ -74,33 +83,48 @@ function EditTiketAdmin() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (saving) {
+      return;
+    }
+
+    setSaving(true);
     setMessage("");
     setErrorMessage("");
 
     try {
+      console.log("Data yang dikirim:", form);
+
+      // PUT digunakan untuk UPDATE database
       const response = await axios.put(
-        `http://localhost:8000/api/tiket/${id}`,
-        form,
+        `http://localhost:8000/api/tiket/admin/${id}`,
+        {
+          title: form.title,
+          description: form.description,
+          priority: form.priority,
+          status: form.status,
+        },
       );
 
-      console.log("Tiket berhasil diperbarui:", response.data);
+      console.log("Response backend:", response.data);
+
+      // Isi kembali form menggunakan data terbaru dari database
+      setForm({
+        title: response.data.title ?? "",
+        description: response.data.description ?? "",
+        priority: response.data.priority ?? "medium",
+        status: response.data.status ?? "open",
+      });
 
       setMessage("Tiket berhasil diperbarui!");
-
-      // Update form berdasarkan response terbaru
-      setForm({
-        title: response.data.title,
-        description: response.data.description,
-        priority: response.data.priority,
-        status: response.data.status,
-      });
     } catch (error) {
-      console.error("Error:", error);
-      console.error("Response:", error.response?.data);
+      console.error("UPDATE ERROR:", error);
+      console.error("RESPONSE:", error.response?.data);
 
       setErrorMessage(
         error.response?.data?.detail || "Gagal memperbarui tiket",
       );
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -145,20 +169,7 @@ function EditTiketAdmin() {
           {/* ERROR */}
 
           {errorMessage && (
-            <div
-              className="
-                mb-5
-                p-4
-                bg-red-50
-                border
-                border-red-200
-                text-red-700
-                rounded-xl
-                text-center
-                text-sm
-                font-medium
-              "
-            >
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-center text-sm font-medium">
               {errorMessage}
             </div>
           )}
@@ -169,16 +180,21 @@ function EditTiketAdmin() {
             {/* TITLE */}
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="title"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Title
               </label>
 
               <input
+                id="title"
                 type="text"
                 name="title"
                 value={form.title}
                 onChange={handleChange}
                 required
+                disabled={saving}
                 className="
                   w-full
                   px-4
@@ -191,6 +207,7 @@ function EditTiketAdmin() {
                   focus:ring-4
                   focus:ring-indigo-500/10
                   transition
+                  disabled:bg-gray-100
                 "
               />
             </div>
@@ -198,16 +215,21 @@ function EditTiketAdmin() {
             {/* DESCRIPTION */}
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Description
               </label>
 
               <textarea
+                id="description"
                 name="description"
                 value={form.description}
                 onChange={handleChange}
                 required
                 rows={5}
+                disabled={saving}
                 className="
                   w-full
                   px-4
@@ -221,6 +243,7 @@ function EditTiketAdmin() {
                   focus:ring-4
                   focus:ring-indigo-500/10
                   transition
+                  disabled:bg-gray-100
                 "
               />
             </div>
@@ -231,14 +254,19 @@ function EditTiketAdmin() {
               {/* PRIORITY */}
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="priority"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Priority
                 </label>
 
                 <select
+                  id="priority"
                   name="priority"
                   value={form.priority}
                   onChange={handleChange}
+                  disabled={saving}
                   className="
                     w-full
                     px-4
@@ -251,10 +279,14 @@ function EditTiketAdmin() {
                     focus:border-indigo-500
                     focus:ring-4
                     focus:ring-indigo-500/10
+                    transition
+                    disabled:bg-gray-100
                   "
                 >
                   <option value="low">Low</option>
+
                   <option value="medium">Medium</option>
+
                   <option value="high">High</option>
                 </select>
               </div>
@@ -262,15 +294,19 @@ function EditTiketAdmin() {
               {/* STATUS */}
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Status
                 </label>
 
-                <input
-                  type="text"
+                <select
+                  id="status"
                   name="status"
                   value={form.status}
-                  readOnly
+                  onChange={handleChange}
+                  disabled={saving}
                   className="
                     w-full
                     px-4
@@ -278,26 +314,40 @@ function EditTiketAdmin() {
                     border
                     border-gray-300
                     rounded-xl
-                    bg-gray-100
-                    text-gray-600
-                    cursor-not-allowed
+                    bg-white
                     outline-none
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                    transition
+                    disabled:bg-gray-100
                   "
-                />
+                >
+                  <option value="open">Open</option>
+
+                  <option value="in_progress">In Progress</option>
+
+                  <option value="closed">Closed</option>
+                </select>
               </div>
             </div>
 
             {/* BUTTON */}
 
             <div className="flex flex-col sm:flex-row gap-3">
+              {/* BATAL */}
+
               <button
                 type="button"
                 onClick={() => navigate("/edit")}
+                disabled={saving}
                 className="
                   flex-1
                   py-3
                   bg-gray-200
                   hover:bg-gray-300
+                  disabled:bg-gray-100
+                  disabled:cursor-not-allowed
                   text-gray-700
                   font-semibold
                   rounded-xl
@@ -307,20 +357,25 @@ function EditTiketAdmin() {
                 Batal
               </button>
 
+              {/* SIMPAN */}
+
               <button
                 type="submit"
+                disabled={saving}
                 className="
                   flex-1
                   py-3
                   bg-indigo-600
                   hover:bg-indigo-700
+                  disabled:bg-indigo-400
+                  disabled:cursor-not-allowed
                   text-white
                   font-semibold
                   rounded-xl
                   transition
                 "
               >
-                Simpan Perubahan
+                {saving ? "Menyimpan..." : "Simpan Perubahan"}
               </button>
             </div>
           </form>
