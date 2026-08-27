@@ -6,7 +6,8 @@ from app.models.tiket import Tiket
 from app.schemas.tiket import (
     TiketCreate,
     TiketResponse,
-    TiketUpdate
+    TiketUpdateUser,
+    TiketUpdateAdmin
 )
 
 
@@ -67,6 +68,7 @@ def get_tiket_by_id(
 
 # ==========================================
 # CREATE TIKET
+# Status selalu OPEN
 # ==========================================
 
 @router.post(
@@ -83,7 +85,9 @@ def create_tiket(
         title=data.title,
         description=data.description,
         priority=data.priority,
-        status=data.status
+
+        # Status selalu open ketika tiket dibuat
+        status="open"
     )
 
     db.add(tiket)
@@ -94,16 +98,22 @@ def create_tiket(
 
 
 # ==========================================
-# UPDATE TIKET
+# UPDATE TIKET USER
+# User:
+# - title
+# - description
+# - priority
+# 
+# Status tidak dapat diubah
 # ==========================================
 
 @router.put(
     "/{tiket_id}",
     response_model=TiketResponse
 )
-def update_tiket(
+def update_tiket_user(
     tiket_id: int,
-    data: TiketUpdate,
+    data: TiketUpdateUser,
     db: Session = Depends(get_db)
 ):
 
@@ -119,6 +129,51 @@ def update_tiket(
             detail="Tiket tidak ditemukan"
         )
 
+    # User hanya boleh mengubah data berikut
+    tiket.title = data.title
+    tiket.description = data.description
+    tiket.priority = data.priority
+
+    # Status TIDAK diubah
+
+    db.commit()
+    db.refresh(tiket)
+
+    return tiket
+
+
+# ==========================================
+# UPDATE TIKET ADMIN
+# Admin:
+# - title
+# - description
+# - priority
+# - status
+# ==========================================
+
+@router.put(
+    "/admin/{tiket_id}",
+    response_model=TiketResponse
+)
+def update_tiket_admin(
+    tiket_id: int,
+    data: TiketUpdateAdmin,
+    db: Session = Depends(get_db)
+):
+
+    tiket = (
+        db.query(Tiket)
+        .filter(Tiket.id == tiket_id)
+        .first()
+    )
+
+    if not tiket:
+        raise HTTPException(
+            status_code=404,
+            detail="Tiket tidak ditemukan"
+        )
+
+    # Admin dapat mengubah semua data
     tiket.title = data.title
     tiket.description = data.description
     tiket.priority = data.priority
@@ -158,4 +213,4 @@ def delete_tiket(
     db.delete(tiket)
     db.commit()
 
-    return
+    return None

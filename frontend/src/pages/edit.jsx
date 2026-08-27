@@ -10,6 +10,23 @@ function Edit() {
   const [tiket, setTiket] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [authorized, setAuthorized] = useState(false);
+
+  // =====================================
+  // GET COOKIE
+  // =====================================
+
+  const getCookie = (name) => {
+    const cookies = document.cookie.split("; ");
+
+    const cookie = cookies.find((row) => row.startsWith(`${name}=`));
+
+    if (!cookie) {
+      return null;
+    }
+
+    return decodeURIComponent(cookie.substring(name.length + 1));
+  };
 
   // =====================================
   // GET DATA TIKET
@@ -17,6 +34,8 @@ function Edit() {
 
   const getTiket = async () => {
     try {
+      setLoading(true);
+
       const response = await axios.get("http://localhost:8000/api/tiket");
 
       setTiket(response.data);
@@ -30,27 +49,32 @@ function Edit() {
   };
 
   // =====================================
-  // LOAD DATA
+  // CEK LOGIN & ROLE
   // =====================================
 
   useEffect(() => {
+    const nama = getCookie("nama");
+    const email = getCookie("email");
+    const role = getCookie("role");
+
+    // Belum login
+    if (!nama || !email || !role) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    // Hanya role 2
+    if (Number(role) !== 2) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    // User valid
+    setAuthorized(true);
+
+    // Ambil tiket
     getTiket();
-  }, []);
-
-  const nama = getCookie("nama");
-  const email = getCookie("email");
-  const role = getCookie("role");
-
-  if (!nama || !email || !role) {
-    navigate("/login", { replace: true });
-    return;
-  }
-
-  if (Number(role) !== 2) {
-    // Role selain 2 tidak boleh masuk
-    navigate("/", { replace: true });
-    return;
-  }
+  }, [navigate]);
 
   // =====================================
   // FORMAT TANGGAL
@@ -69,6 +93,22 @@ function Edit() {
   const handleEdit = (id) => {
     navigate(`/edit-tiket/${id}`);
   };
+
+  // =====================================
+  // CEK AUTHORIZATION
+  // =====================================
+
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <p className="text-gray-500">Memeriksa akses...</p>
+      </div>
+    );
+  }
+
+  // =====================================
+  // PAGE
+  // =====================================
 
   return (
     <div className="min-h-screen bg-gray-100">

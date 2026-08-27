@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar";
 
-function EditTiket() {
+function EditTiketAdmin() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -26,14 +26,16 @@ function EditTiket() {
   useEffect(() => {
     const getTiket = async () => {
       try {
-        const response = await axios.put(
+        const response = await axios.get(
           `http://localhost:8000/api/tiket/${id}`,
-          {
-            title: form.title,
-            description: form.description,
-            priority: form.priority,
-          },
         );
+
+        setForm({
+          title: response.data.title,
+          description: response.data.description,
+          priority: response.data.priority,
+          status: response.data.status,
+        });
       } catch (error) {
         console.error(error);
 
@@ -238,23 +240,30 @@ function EditTiket() {
                   Status
                 </label>
 
-                <input
-                  type="text"
+                <select
+                  name="status"
                   value={form.status}
-                  readOnly
+                  onChange={handleChange}
                   className="
-                      w-full
-                      px-4
-                      py-3
-                      border
-                      border-gray-300
-                      rounded-xl
-                      bg-gray-100
-                      text-gray-600
-                      cursor-not-allowed
-                      outline-none
-                    "
-                />
+                    w-full
+                    px-4
+                    py-3
+                    border
+                    border-gray-300
+                    rounded-xl
+                    bg-white
+                    outline-none
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                  "
+                >
+                  <option value="open">Open</option>
+
+                  <option value="in_progress">In Progress</option>
+
+                  <option value="closed">Closed</option>
+                </select>
               </div>
             </div>
 
@@ -343,4 +352,4 @@ function EditTiket() {
   );
 }
 
-export default EditTiket;
+export default EditTiketAdmin;

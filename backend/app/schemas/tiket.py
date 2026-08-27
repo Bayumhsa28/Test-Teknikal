@@ -3,6 +3,10 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+# ==========================================
+# CREATE TIKET
+# ==========================================
+
 class TiketCreate(BaseModel):
     title: str
     description: str
@@ -10,12 +14,32 @@ class TiketCreate(BaseModel):
     status: str = "open"
 
 
-class TiketUpdate(BaseModel):
+# ==========================================
+# UPDATE TIKET USER
+# User tidak dapat mengubah status
+# ==========================================
+
+class TiketUpdateUser(BaseModel):
+    title: str
+    description: str
+    priority: str
+
+
+# ==========================================
+# UPDATE TIKET ADMIN
+# Admin dapat mengubah status
+# ==========================================
+
+class TiketUpdateAdmin(BaseModel):
     title: str
     description: str
     priority: str
     status: str
 
+
+# ==========================================
+# RESPONSE TIKET
+# ==========================================
 
 class TiketResponse(BaseModel):
     id: int

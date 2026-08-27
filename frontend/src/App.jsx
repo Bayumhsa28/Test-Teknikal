@@ -4,8 +4,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import InputTiket from "./pages/inputTiket";
 import Edit from "./pages/edit";
-import EditTiket from "./pages/EditTiket";
 import EditAdmin from "./pages/EditAdmin";
+import EditTiket from "./pages/EditTiket";
 import EditTiketAdmin from "./pages/InputTiketAdmin";
 
 function App() {
