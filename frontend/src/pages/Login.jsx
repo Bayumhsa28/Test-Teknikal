@@ -9,35 +9,53 @@ function Login() {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // =====================================
+  // HANDLE INPUT
+  // =====================================
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
+
+  // =====================================
+  // LOGIN
+  // =====================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    setMessage("");
+    setLoading(true);
+
     try {
       const data = await login(form);
 
-      console.log(data);
+      console.log("Login berhasil:", data);
 
-      // Simpan access token
+      // =====================================
+      // SIMPAN ACCESS TOKEN
+      // =====================================
+
       localStorage.setItem("access_token", data.access_token);
 
-      // Simpan data user ke localStorage
+      // =====================================
+      // SIMPAN DATA USER
+      // =====================================
+
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ==========================
-      // SIMPAN DATA KE COOKIE
-      // ==========================
+      // =====================================
+      // SIMPAN COOKIE
+      // =====================================
 
       document.cookie = `nama=${encodeURIComponent(data.user.nama)}; path=/`;
 
@@ -45,20 +63,42 @@ function Login() {
 
       document.cookie = `role=${data.user.role}; path=/`;
 
-      setMessage("Login berhasil!");
+      // =====================================
+      // CEK ROLE
+      // =====================================
 
-      // Pindah ke halaman Input Tiket
-      navigate("/input-tiket");
+      const role = Number(data.user.role);
+
+      // Role 1 = Admin
+      if (role === 1) {
+        navigate("/edit-tiket-admin");
+        return;
+      }
+
+      // Role 2 = User
+      if (role === 2) {
+        navigate("/input-tiket");
+        return;
+      }
+
+      // Role tidak dikenal
+      setMessage("Role user tidak dikenali.");
     } catch (error) {
-      console.error(error);
+      console.error("Login error:", error);
 
-      setMessage(error.response?.data?.detail || "Login gagal");
+      setMessage(error.response?.data?.detail || "Email atau password salah");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
+        {/* ================================= */}
+        {/* HEADER */}
+        {/* ================================= */}
+
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800">Selamat Datang</h1>
 
@@ -66,6 +106,10 @@ function Login() {
             Silakan masuk ke akun Anda
           </p>
         </div>
+
+        {/* ================================= */}
+        {/* FORM */}
+        {/* ================================= */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* EMAIL */}
@@ -82,7 +126,19 @@ function Login() {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              className="
+                w-full
+                px-4
+                py-2
+                border
+                border-gray-300
+                rounded-lg
+                focus:ring-2
+                focus:ring-indigo-500
+                focus:border-indigo-500
+                outline-none
+                transition
+              "
             />
           </div>
 
@@ -100,7 +156,19 @@ function Login() {
               value={form.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+              className="
+                w-full
+                px-4
+                py-2
+                border
+                border-gray-300
+                rounded-lg
+                focus:ring-2
+                focus:ring-indigo-500
+                focus:border-indigo-500
+                outline-none
+                transition
+              "
             />
           </div>
 
@@ -111,7 +179,11 @@ function Login() {
               Belum punya akun?{" "}
               <Link
                 to="/register"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+                className="
+                  font-semibold
+                  text-indigo-600
+                  hover:text-indigo-500
+                "
               >
                 Register
               </Link>
@@ -122,16 +194,43 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md transition duration-200"
+            disabled={loading}
+            className="
+              w-full
+              py-3
+              px-4
+              bg-indigo-600
+              hover:bg-indigo-700
+              disabled:bg-indigo-400
+              disabled:cursor-not-allowed
+              text-white
+              font-medium
+              rounded-lg
+              shadow-md
+              transition
+            "
           >
-            Login
+            {loading ? "Memproses..." : "Login"}
           </button>
         </form>
 
+        {/* ================================= */}
         {/* MESSAGE */}
+        {/* ================================= */}
 
         {message && (
-          <div className="p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-sm text-center">
+          <div
+            className="
+              p-3
+              bg-blue-50
+              border
+              border-blue-200
+              text-blue-700
+              rounded-lg
+              text-sm
+              text-center
+            "
+          >
             {message}
           </div>
         )}

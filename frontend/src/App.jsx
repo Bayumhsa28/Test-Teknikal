@@ -5,29 +5,29 @@ import Register from "./pages/Register";
 import InputTiket from "./pages/inputTiket";
 import Edit from "./pages/edit";
 import EditTiket from "./pages/EditTiket";
-import editTiketAdmin from "./pages/EditAdmin";
+import EditTiketAdmin from "./pages/EditAdmin";
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* LOGIN */}
-
         <Route path="/" element={<Login />} />
-
         <Route path="/login" element={<Login />} />
 
         {/* REGISTER */}
-
         <Route path="/register" element={<Register />} />
 
-        {/* INPUT TIKET */}
-
+        {/* USER */}
         <Route path="/input-tiket" element={<InputTiket />} />
 
+        {/* PAGE */}
         <Route path="/edit" element={<Edit />} />
 
+        {/* EDIT TIKET USER */}
         <Route path="/edit-tiket/:id" element={<EditTiket />} />
 
+        {/* ADMIN */}
         <Route path="/edit-tiket-admin" element={<EditTiketAdmin />} />
       </Routes>
     </BrowserRouter>
