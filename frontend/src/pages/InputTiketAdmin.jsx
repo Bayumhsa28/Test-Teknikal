@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/navbar";
+import Navbar from "../components/navbarAdmin";
 
 function InputTiketAdmin() {
   const navigate = useNavigate();
