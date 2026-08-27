@@ -71,7 +71,7 @@ function Login() {
 
       // Role 1 = Admin
       if (role === 1) {
-        navigate("/edit-tiket-admin");
+        navigate("/edit-admin");
         return;
       }
 

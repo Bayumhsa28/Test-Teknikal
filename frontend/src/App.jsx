@@ -5,7 +5,7 @@ import Register from "./pages/Register";
 import InputTiket from "./pages/inputTiket";
 import Edit from "./pages/edit";
 import EditTiket from "./pages/EditTiket";
-import EditTiketAdmin from "./pages/EditAdmin";
+import EditAdmin from "./pages/EditAdmin";
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
         <Route path="/edit-tiket/:id" element={<EditTiket />} />
 
         {/* ADMIN */}
-        <Route path="/edit-tiket-admin" element={<EditTiketAdmin />} />
+        <Route path="/edit-admin" element={<EditAdmin />} />
       </Routes>
     </BrowserRouter>
   );
