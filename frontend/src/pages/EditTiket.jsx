@@ -20,22 +20,28 @@ function EditTiket() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // =====================================
-  // GET TIKET
+  // GET DATA TIKET
   // =====================================
 
   useEffect(() => {
     const getTiket = async () => {
       try {
-        const response = await axios.put(
+        const response = await axios.get(
           `http://localhost:8000/api/tiket/${id}`,
-          {
-            title: form.title,
-            description: form.description,
-            priority: form.priority,
-          },
         );
+
+        console.log("Data tiket:", response.data);
+
+        // Masukkan data dari database ke form
+        setForm({
+          title: response.data.title || "",
+          description: response.data.description || "",
+          priority: response.data.priority || "medium",
+          status: response.data.status || "open",
+        });
       } catch (error) {
-        console.error(error);
+        console.error("Error:", error);
+        console.error("Response:", error.response?.data);
 
         setErrorMessage(
           error.response?.data?.detail || "Gagal mengambil data tiket",
@@ -68,7 +74,6 @@ function EditTiket() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Bersihkan message sebelumnya
     setMessage("");
     setErrorMessage("");
 
@@ -80,11 +85,15 @@ function EditTiket() {
 
       console.log("Tiket berhasil diperbarui:", response.data);
 
-      // Tetap di halaman ini
       setMessage("Tiket berhasil diperbarui!");
 
-      // Tidak ada navigate di sini
-      // Tidak ada setTimeout
+      // Update form berdasarkan response terbaru
+      setForm({
+        title: response.data.title,
+        description: response.data.description,
+        priority: response.data.priority,
+        status: response.data.status,
+      });
     } catch (error) {
       console.error("Error:", error);
       console.error("Response:", error.response?.data);
@@ -133,6 +142,27 @@ function EditTiket() {
             <p className="text-gray-500 mt-2">Perbarui informasi tiket.</p>
           </div>
 
+          {/* ERROR */}
+
+          {errorMessage && (
+            <div
+              className="
+                mb-5
+                p-4
+                bg-red-50
+                border
+                border-red-200
+                text-red-700
+                rounded-xl
+                text-center
+                text-sm
+                font-medium
+              "
+            >
+              {errorMessage}
+            </div>
+          )}
+
           {/* FORM */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -177,7 +207,7 @@ function EditTiket() {
                 value={form.description}
                 onChange={handleChange}
                 required
-                rows="5"
+                rows={5}
                 className="
                   w-full
                   px-4
@@ -224,9 +254,7 @@ function EditTiket() {
                   "
                 >
                   <option value="low">Low</option>
-
                   <option value="medium">Medium</option>
-
                   <option value="high">High</option>
                 </select>
               </div>
@@ -240,20 +268,21 @@ function EditTiket() {
 
                 <input
                   type="text"
+                  name="status"
                   value={form.status}
                   readOnly
                   className="
-                      w-full
-                      px-4
-                      py-3
-                      border
-                      border-gray-300
-                      rounded-xl
-                      bg-gray-100
-                      text-gray-600
-                      cursor-not-allowed
-                      outline-none
-                    "
+                    w-full
+                    px-4
+                    py-3
+                    border
+                    border-gray-300
+                    rounded-xl
+                    bg-gray-100
+                    text-gray-600
+                    cursor-not-allowed
+                    outline-none
+                  "
                 />
               </div>
             </div>
@@ -263,7 +292,7 @@ function EditTiket() {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                onClick={() => navigate("/page2")}
+                onClick={() => navigate("/edit")}
                 className="
                   flex-1
                   py-3
@@ -314,27 +343,6 @@ function EditTiket() {
               "
             >
               ✓ {message}
-            </div>
-          )}
-
-          {/* ERROR MESSAGE */}
-
-          {errorMessage && (
-            <div
-              className="
-                mt-5
-                p-4
-                bg-red-50
-                border
-                border-red-200
-                text-red-700
-                rounded-xl
-                text-center
-                text-sm
-                font-medium
-              "
-            >
-              {errorMessage}
             </div>
           )}
         </div>

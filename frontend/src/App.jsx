@@ -6,7 +6,7 @@ import InputTiket from "./pages/inputTiket";
 import Edit from "./pages/edit";
 import EditAdmin from "./pages/EditAdmin";
 import EditTiket from "./pages/EditTiket";
-import EditTiketAdmin from "./pages/InputTiketAdmin";
+import EditTiketAdmin from "./pages/EditTiketAdmin";
 
 function App() {
   return (

@@ -20,7 +20,7 @@ function EditTiketAdmin() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // =====================================
-  // GET TIKET
+  // GET DATA TIKET
   // =====================================
 
   useEffect(() => {
@@ -30,14 +30,18 @@ function EditTiketAdmin() {
           `http://localhost:8000/api/tiket/${id}`,
         );
 
+        console.log("Data tiket:", response.data);
+
+        // Masukkan data dari database ke form
         setForm({
-          title: response.data.title,
-          description: response.data.description,
-          priority: response.data.priority,
-          status: response.data.status,
+          title: response.data.title || "",
+          description: response.data.description || "",
+          priority: response.data.priority || "medium",
+          status: response.data.status || "open",
         });
       } catch (error) {
-        console.error(error);
+        console.error("Error:", error);
+        console.error("Response:", error.response?.data);
 
         setErrorMessage(
           error.response?.data?.detail || "Gagal mengambil data tiket",
@@ -70,7 +74,6 @@ function EditTiketAdmin() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Bersihkan message sebelumnya
     setMessage("");
     setErrorMessage("");
 
@@ -82,11 +85,15 @@ function EditTiketAdmin() {
 
       console.log("Tiket berhasil diperbarui:", response.data);
 
-      // Tetap di halaman ini
       setMessage("Tiket berhasil diperbarui!");
 
-      // Tidak ada navigate di sini
-      // Tidak ada setTimeout
+      // Update form berdasarkan response terbaru
+      setForm({
+        title: response.data.title,
+        description: response.data.description,
+        priority: response.data.priority,
+        status: response.data.status,
+      });
     } catch (error) {
       console.error("Error:", error);
       console.error("Response:", error.response?.data);
@@ -135,6 +142,27 @@ function EditTiketAdmin() {
             <p className="text-gray-500 mt-2">Perbarui informasi tiket.</p>
           </div>
 
+          {/* ERROR */}
+
+          {errorMessage && (
+            <div
+              className="
+                mb-5
+                p-4
+                bg-red-50
+                border
+                border-red-200
+                text-red-700
+                rounded-xl
+                text-center
+                text-sm
+                font-medium
+              "
+            >
+              {errorMessage}
+            </div>
+          )}
+
           {/* FORM */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -179,7 +207,7 @@ function EditTiketAdmin() {
                 value={form.description}
                 onChange={handleChange}
                 required
-                rows="5"
+                rows={5}
                 className="
                   w-full
                   px-4
@@ -226,9 +254,7 @@ function EditTiketAdmin() {
                   "
                 >
                   <option value="low">Low</option>
-
                   <option value="medium">Medium</option>
-
                   <option value="high">High</option>
                 </select>
               </div>
@@ -240,10 +266,11 @@ function EditTiketAdmin() {
                   Status
                 </label>
 
-                <select
+                <input
+                  type="text"
                   name="status"
                   value={form.status}
-                  onChange={handleChange}
+                  readOnly
                   className="
                     w-full
                     px-4
@@ -251,19 +278,12 @@ function EditTiketAdmin() {
                     border
                     border-gray-300
                     rounded-xl
-                    bg-white
+                    bg-gray-100
+                    text-gray-600
+                    cursor-not-allowed
                     outline-none
-                    focus:border-indigo-500
-                    focus:ring-4
-                    focus:ring-indigo-500/10
                   "
-                >
-                  <option value="open">Open</option>
-
-                  <option value="in_progress">In Progress</option>
-
-                  <option value="closed">Closed</option>
-                </select>
+                />
               </div>
             </div>
 
@@ -272,7 +292,7 @@ function EditTiketAdmin() {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                onClick={() => navigate("/page2")}
+                onClick={() => navigate("/edit")}
                 className="
                   flex-1
                   py-3
@@ -323,27 +343,6 @@ function EditTiketAdmin() {
               "
             >
               ✓ {message}
-            </div>
-          )}
-
-          {/* ERROR MESSAGE */}
-
-          {errorMessage && (
-            <div
-              className="
-                mt-5
-                p-4
-                bg-red-50
-                border
-                border-red-200
-                text-red-700
-                rounded-xl
-                text-center
-                text-sm
-                font-medium
-              "
-            >
-              {errorMessage}
             </div>
           )}
         </div>
