@@ -33,11 +33,31 @@ function InputTiket() {
       return null;
     }
 
-    return decodeURIComponent(cookie.split("=")[1]);
+    return decodeURIComponent(cookie.substring(name.length + 1));
   };
 
   // =====================================
-  // CEK COOKIE KETIKA HALAMAN DIBUKA
+  // LOGOUT
+  // =====================================
+
+  const handleLogout = () => {
+    // Hapus cookie
+    document.cookie = "nama=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    document.cookie = "email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    // Hapus localStorage
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+
+    // Kembali ke login
+    navigate("/login");
+  };
+
+  // =====================================
+  // CEK LOGIN & ROLE
   // =====================================
 
   useEffect(() => {
@@ -45,17 +65,27 @@ function InputTiket() {
     const email = getCookie("email");
     const role = getCookie("role");
 
-    // Kalau salah satu cookie tidak ada
-    // kembali ke halaman login
-
+    // Tidak login
     if (!nama || !email || !role) {
       navigate("/login");
 
       return;
     }
 
-    // Simpan data user ke state
+    // =====================================
+    // HANYA ROLE 2 YANG BOLEH MASUK
+    // =====================================
 
+    if (Number(role) !== 2) {
+      // Role 1 = Admin
+      // Untuk sementara arahkan ke admin
+
+      navigate("/admin");
+
+      return;
+    }
+
+    // User valid
     setUser({
       nama,
       email,
@@ -95,6 +125,7 @@ function InputTiket() {
 
       setMessage("Tiket berhasil dibuat!");
 
+      // Reset form
       setForm({
         title: "",
         description: "",
@@ -112,45 +143,91 @@ function InputTiket() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* ================================= */}
       {/* HEADER */}
+      {/* ================================= */}
 
       <header className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Ticket System</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* LOGO / TITLE */}
 
-            <p className="text-sm text-gray-500">Management Platform</p>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-800">
+                Ticket System
+              </h1>
+
+              <p className="text-xs sm:text-sm text-gray-500">
+                Management Platform
+              </p>
+            </div>
+
+            {/* USER + LOGOUT */}
+
+            <div className="flex items-center gap-3 sm:gap-5">
+              {/* USER INFO */}
+
+              <div className="text-right hidden sm:block">
+                <p className="font-semibold text-gray-800">{user.nama}</p>
+
+                <p className="text-sm text-gray-500">{user.email}</p>
+
+                <p className="text-xs text-indigo-600 font-semibold">User</p>
+              </div>
+
+              {/* USER AVATAR */}
+
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                <span className="text-indigo-600 font-bold">
+                  {user.nama ? user.nama.charAt(0).toUpperCase() : "U"}
+                </span>
+              </div>
+
+              {/* LOGOUT */}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-3 sm:px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
-          {/* USER */}
+          {/* USER INFO MOBILE */}
 
-          <div className="text-right">
-            <p className="font-semibold text-gray-800">{user.nama}</p>
+          <div className="sm:hidden mt-3 pt-3 border-t border-gray-100">
+            <p className="text-sm font-semibold text-gray-800">{user.nama}</p>
 
-            <p className="text-sm text-gray-500">{user.email}</p>
-
-            <p className="text-xs text-indigo-600 font-semibold">
-              Role: {user.role}
-            </p>
+            <p className="text-xs text-gray-500">{user.email}</p>
           </div>
         </div>
       </header>
 
+      {/* ================================= */}
       {/* CONTENT */}
+      {/* ================================= */}
 
-      <main className="max-w-3xl mx-auto px-4 py-10">
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+      <main className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
+        <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8">
+          {/* HEADER FORM */}
+
           <div className="mb-8">
             <p className="text-sm font-semibold text-indigo-600">TICKET</p>
 
-            <h2 className="text-3xl font-bold text-gray-800 mt-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
               Buat Tiket
             </h2>
 
-            <p className="text-gray-500 mt-2">
+            <p className="text-sm sm:text-base text-gray-500 mt-2">
               Sampaikan masalah atau kendala yang ingin Anda laporkan.
             </p>
           </div>
+
+          {/* ================================= */}
+          {/* FORM */}
+          {/* ================================= */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* TITLE */}
@@ -245,10 +322,12 @@ function InputTiket() {
             </button>
           </form>
 
+          {/* ================================= */}
           {/* MESSAGE */}
+          {/* ================================= */}
 
           {message && (
-            <div className="mt-5 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl text-center">
+            <div className="mt-5 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl text-center text-sm">
               {message}
             </div>
           )}
