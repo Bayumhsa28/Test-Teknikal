@@ -10,6 +10,9 @@ function Navbar() {
     role: "",
   });
 
+  // State untuk dropdown user
+  const [showMenu, setShowMenu] = useState(false);
+
   // =====================================
   // GET COOKIE
   // =====================================
@@ -104,16 +107,12 @@ function Navbar() {
           {/* ================================= */}
 
           <nav className="hidden md:flex items-center gap-2">
-            {/* BUAT TIKET */}
-
             <NavLink to="/input-tiket" className={navLinkClass}>
               Buat Tiket
             </NavLink>
 
-            {/* PAGE 2 */}
-
-            <NavLink to="/page2" className={navLinkClass}>
-              Page 2
+            <NavLink to="/edit" className={navLinkClass}>
+              Edit Tiket
             </NavLink>
           </nav>
 
@@ -121,59 +120,130 @@ function Navbar() {
           {/* USER */}
           {/* ================================= */}
 
-          <div className="flex items-center gap-3">
-            {/* USER INFO */}
-
-            <div className="hidden lg:block text-right">
-              <p className="text-sm font-semibold text-gray-800">{user.nama}</p>
-
-              <p className="text-xs text-gray-500">{user.email}</p>
-
-              <p className="text-xs text-indigo-600 font-semibold">
-                {Number(user.role) === 1 ? "Admin" : "User"}
-              </p>
-            </div>
-
-            {/* AVATAR */}
-
-            <div
-              className="
-                w-10
-                h-10
-                rounded-full
-                bg-indigo-100
-                flex
-                items-center
-                justify-center
-                flex-shrink-0
-              "
-            >
-              <span className="text-indigo-600 font-bold">
-                {user.nama ? user.nama.charAt(0).toUpperCase() : "U"}
-              </span>
-            </div>
-
-            {/* LOGOUT */}
+          <div className="relative">
+            {/* USER BUTTON */}
 
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={() => setShowMenu(!showMenu)}
               className="
-                px-3
-                sm:px-4
+                flex
+                items-center
+                gap-3
+                px-2
                 py-2
-                text-sm
-                font-semibold
-                text-red-600
-                border
-                border-red-200
-                rounded-lg
-                hover:bg-red-50
+                rounded-xl
+                hover:bg-gray-100
                 transition
               "
             >
-              Logout
+              {/* USER INFO */}
+
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-semibold text-gray-800">
+                  {user.nama}
+                </p>
+
+                <p className="text-xs text-gray-500">{user.email}</p>
+
+                <p className="text-xs text-indigo-600 font-semibold">
+                  {Number(user.role) === 1 ? "Admin" : "User"}
+                </p>
+              </div>
+
+              {/* AVATAR */}
+
+              <div
+                className="
+                  w-10
+                  h-10
+                  rounded-full
+                  bg-indigo-100
+                  flex
+                  items-center
+                  justify-center
+                  flex-shrink-0
+                "
+              >
+                <span className="text-indigo-600 font-bold">
+                  {user.nama ? user.nama.charAt(0).toUpperCase() : "U"}
+                </span>
+              </div>
+
+              {/* ARROW */}
+
+              <span
+                className={`
+                  hidden sm:block
+                  text-gray-400
+                  transition-transform
+                  ${showMenu ? "rotate-180" : ""}
+                `}
+              >
+                ▼
+              </span>
             </button>
+
+            {/* ================================= */}
+            {/* DROPDOWN */}
+            {/* ================================= */}
+
+            {showMenu && (
+              <div
+                className="
+                  absolute
+                  right-0
+                  top-full
+                  mt-2
+                  w-52
+                  bg-white
+                  border
+                  border-gray-200
+                  rounded-xl
+                  shadow-lg
+                  p-2
+                  z-50
+                "
+              >
+                {/* USER INFO MOBILE */}
+
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {user.nama}
+                  </p>
+
+                  <p className="text-xs text-gray-500 break-all">
+                    {user.email}
+                  </p>
+
+                  <p className="text-xs text-indigo-600 font-semibold mt-1">
+                    {Number(user.role) === 1 ? "Admin" : "User"}
+                  </p>
+                </div>
+
+                {/* LOGOUT */}
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="
+                    w-full
+                    mt-1
+                    px-3
+                    py-2.5
+                    text-left
+                    text-sm
+                    font-semibold
+                    text-red-600
+                    rounded-lg
+                    hover:bg-red-50
+                    transition
+                  "
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -191,28 +261,14 @@ function Navbar() {
             overflow-x-auto
           "
         >
-          {/* BUAT TIKET */}
-
           <NavLink to="/input-tiket" className={navLinkClass}>
             📝 Buat Tiket
           </NavLink>
 
-          {/* PAGE 2 */}
-
-          <NavLink to="/page2" className={navLinkClass}>
+          <NavLink to="/edit" className={navLinkClass}>
             📋 Page 2
           </NavLink>
         </nav>
-
-        {/* ================================= */}
-        {/* MOBILE USER */}
-        {/* ================================= */}
-
-        <div className="lg:hidden pb-3">
-          <p className="text-xs text-gray-500">
-            {user.nama} • {user.email}
-          </p>
-        </div>
       </div>
     </header>
   );

@@ -1,0 +1,251 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+import Navbar from "../components/navbar";
+
+function Edit() {
+  const navigate = useNavigate();
+
+  const [tiket, setTiket] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  // =====================================
+  // GET DATA TIKET
+  // =====================================
+
+  const getTiket = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/tiket");
+
+      setTiket(response.data);
+    } catch (error) {
+      console.error(error);
+
+      setMessage(error.response?.data?.detail || "Gagal mengambil data tiket");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =====================================
+  // LOAD DATA
+  // =====================================
+
+  useEffect(() => {
+    getTiket();
+  }, []);
+
+  // =====================================
+  // FORMAT TANGGAL
+  // =====================================
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString("id-ID");
+  };
+
+  // =====================================
+  // EDIT
+  // =====================================
+
+  const handleEdit = (id) => {
+    navigate(`/edit-tiket/${id}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* HEADER */}
+
+          <div className="p-6 border-b border-gray-100">
+            <p className="text-sm font-semibold text-indigo-600">TICKET</p>
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mt-1">
+              Daftar Tiket
+            </h1>
+
+            <p className="text-sm text-gray-500 mt-2">
+              Daftar tiket yang tersimpan di database.
+            </p>
+          </div>
+
+          {/* MESSAGE */}
+
+          {message && (
+            <div className="mx-6 mt-5 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
+              {message}
+            </div>
+          )}
+
+          {/* LOADING */}
+
+          {loading ? (
+            <div className="p-10 text-center text-gray-500">
+              Memuat data tiket...
+            </div>
+          ) : tiket.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+              Belum ada tiket.
+            </div>
+          ) : (
+            /* TABLE */
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      ID
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Title
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Description
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Priority
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Status
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Created At
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700">
+                      Updated At
+                    </th>
+
+                    <th className="px-6 py-4 font-semibold text-gray-700 text-center">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {tiket.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition">
+                      {/* ID */}
+
+                      <td className="px-6 py-4 font-semibold text-gray-700">
+                        #{item.id}
+                      </td>
+
+                      {/* TITLE */}
+
+                      <td className="px-6 py-4 font-medium text-gray-800">
+                        {item.title}
+                      </td>
+
+                      {/* DESCRIPTION */}
+
+                      <td className="px-6 py-4 text-gray-600 max-w-xs">
+                        <p className="truncate">{item.description}</p>
+                      </td>
+
+                      {/* PRIORITY */}
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={`
+                            inline-flex
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            font-semibold
+                            ${
+                              item.priority === "high"
+                                ? "bg-red-100 text-red-700"
+                                : item.priority === "medium"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-green-100 text-green-700"
+                            }
+                          `}
+                        >
+                          {item.priority}
+                        </span>
+                      </td>
+
+                      {/* STATUS */}
+
+                      <td className="px-6 py-4">
+                        <span
+                          className={`
+                            inline-flex
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            font-semibold
+                            ${
+                              item.status === "closed"
+                                ? "bg-gray-100 text-gray-700"
+                                : item.status === "in_progress"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-green-100 text-green-700"
+                            }
+                          `}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+
+                      {/* CREATED */}
+
+                      <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                        {formatDate(item.created_at)}
+                      </td>
+
+                      {/* UPDATED */}
+
+                      <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                        {formatDate(item.update_at)}
+                      </td>
+
+                      {/* ACTION */}
+
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(item.id)}
+                          className="
+                            px-4
+                            py-2
+                            bg-indigo-600
+                            hover:bg-indigo-700
+                            text-white
+                            text-sm
+                            font-semibold
+                            rounded-lg
+                            transition
+                          "
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default Edit;
