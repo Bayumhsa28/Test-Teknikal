@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar";
 
@@ -17,6 +17,7 @@ function EditTiket() {
 
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // =====================================
   // GET TIKET
@@ -38,7 +39,7 @@ function EditTiket() {
       } catch (error) {
         console.error(error);
 
-        setMessage(
+        setErrorMessage(
           error.response?.data?.detail || "Gagal mengambil data tiket",
         );
       } finally {
@@ -56,33 +57,43 @@ function EditTiket() {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   // =====================================
-  // UPDATE
+  // UPDATE TIKET
   // =====================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Bersihkan message sebelumnya
     setMessage("");
+    setErrorMessage("");
 
     try {
-      await axios.put(`http://localhost:8000/api/tiket/${id}`, form);
+      const response = await axios.put(
+        `http://localhost:8000/api/tiket/${id}`,
+        form,
+      );
 
+      console.log("Tiket berhasil diperbarui:", response.data);
+
+      // Tetap di halaman ini
       setMessage("Tiket berhasil diperbarui!");
 
-      setTimeout(() => {
-        navigate("/page2");
-      }, 1000);
+      // Tidak ada navigate di sini
+      // Tidak ada setTimeout
     } catch (error) {
-      console.error(error);
+      console.error("Error:", error);
+      console.error("Response:", error.response?.data);
 
-      setMessage(error.response?.data?.detail || "Gagal memperbarui tiket");
+      setErrorMessage(
+        error.response?.data?.detail || "Gagal memperbarui tiket",
+      );
     }
   };
 
@@ -101,6 +112,10 @@ function EditTiket() {
       </div>
     );
   }
+
+  // =====================================
+  // PAGE
+  // =====================================
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -147,6 +162,7 @@ function EditTiket() {
                   focus:border-indigo-500
                   focus:ring-4
                   focus:ring-indigo-500/10
+                  transition
                 "
               />
             </div>
@@ -176,71 +192,84 @@ function EditTiket() {
                   focus:border-indigo-500
                   focus:ring-4
                   focus:ring-indigo-500/10
+                  transition
                 "
               />
             </div>
 
-            {/* PRIORITY */}
+            {/* PRIORITY + STATUS */}
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Priority
-              </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* PRIORITY */}
 
-              <select
-                name="priority"
-                value={form.priority}
-                onChange={handleChange}
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  border
-                  border-gray-300
-                  rounded-xl
-                  bg-white
-                "
-              >
-                <option value="low">Low</option>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Priority
+                </label>
 
-                <option value="medium">Medium</option>
+                <select
+                  name="priority"
+                  value={form.priority}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    border
+                    border-gray-300
+                    rounded-xl
+                    bg-white
+                    outline-none
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                  "
+                >
+                  <option value="low">Low</option>
 
-                <option value="high">High</option>
-              </select>
-            </div>
+                  <option value="medium">Medium</option>
 
-            {/* STATUS */}
+                  <option value="high">High</option>
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Status
-              </label>
+              {/* STATUS */}
 
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  border
-                  border-gray-300
-                  rounded-xl
-                  bg-white
-                "
-              >
-                <option value="open">Open</option>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Status
+                </label>
 
-                <option value="in_progress">In Progress</option>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    px-4
+                    py-3
+                    border
+                    border-gray-300
+                    rounded-xl
+                    bg-white
+                    outline-none
+                    focus:border-indigo-500
+                    focus:ring-4
+                    focus:ring-indigo-500/10
+                  "
+                >
+                  <option value="open">Open</option>
 
-                <option value="closed">Closed</option>
-              </select>
+                  <option value="in_progress">In Progress</option>
+
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
             </div>
 
             {/* BUTTON */}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/page2")}
@@ -276,23 +305,45 @@ function EditTiket() {
             </div>
           </form>
 
-          {/* MESSAGE */}
+          {/* SUCCESS MESSAGE */}
 
           {message && (
             <div
               className="
-              mt-5
-              p-4
-              bg-blue-50
-              border
-              border-blue-200
-              text-blue-700
-              rounded-xl
-              text-center
-              text-sm
-            "
+                mt-5
+                p-4
+                bg-green-50
+                border
+                border-green-200
+                text-green-700
+                rounded-xl
+                text-center
+                text-sm
+                font-medium
+              "
             >
-              {message}
+              ✓ {message}
+            </div>
+          )}
+
+          {/* ERROR MESSAGE */}
+
+          {errorMessage && (
+            <div
+              className="
+                mt-5
+                p-4
+                bg-red-50
+                border
+                border-red-200
+                text-red-700
+                rounded-xl
+                text-center
+                text-sm
+                font-medium
+              "
+            >
+              {errorMessage}
             </div>
           )}
         </div>
